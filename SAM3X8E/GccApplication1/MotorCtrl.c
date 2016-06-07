@@ -137,8 +137,32 @@ void ForwardDrive(){
 
 
 void ControlledDrive(uint8_t percentage_ST, uint8_t percentage_DR){
+	// Enable output
+	PIOD->PIO_SODR = PIO_PD7;
+	delay_ms(1000);
+	// Disable output
+	PIOD->PIO_CODR = PIO_PD7;
+	delay_ms(1000);
+	
+	uint8_t st = 0;
+	uint8_t dr = 0;
+	
+	iEncoder_ST_current = 0;
+	iEncoder_DR_current = 0;
+	
+	WriteMotors(70,70);
+	
+	while(st<1||dr<1){
+		if(iEncoder_DR_current >= percentage_DR){
+			iSpeed_DR = 0;
+			st=1;
+		}
+		if(iEncoder_ST_current >= percentage_ST){
+			iSpeed_ST = 0;
+			dr=1;
+		}
+		WriteMotors(iSpeed_ST,iSpeed_DR);
+	}
 	
 	
-	
-	WriteMotors(iSpeed_ST,iSpeed_DR);
 }

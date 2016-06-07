@@ -14,9 +14,12 @@
 #define KP_ENC 5
 #define KD_ENC 0
 
-uint32_t iEncoder_DR;
-uint32_t iEncoder_ST;
-uint32_t iEncoder_DR_current;
-uint32_t iEncoder_ST_current;
-uint16_t iSpeed_DR;
-uint16_t iSpeed_ST;
+volatile uint32_t iEncoder_DR;
+volatile uint32_t iEncoder_ST;
+volatile uint32_t iEncoder_DR_current;
+volatile uint32_t iEncoder_ST_current;
+volatile uint16_t iSpeed_DR;
+volatile uint16_t iSpeed_ST;
+volatile uint8_t percentage_ST;
+volatile uint8_t percentage_DR;
+volatile uint8_t newSpeed;

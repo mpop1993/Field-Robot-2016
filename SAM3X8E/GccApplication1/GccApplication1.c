@@ -53,7 +53,10 @@ int main(void)
 	
     while (1) 
     {
-		
+		if(newSpeed){
+			newSpeed = 0;
+			ControlledDrive(percentage_ST,percentage_DR);
+		}
 		
 	}
 }

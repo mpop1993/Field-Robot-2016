@@ -10,6 +10,8 @@
 #include "sam.h"
 #include "UART.h"
 #include "TmrCfg.h"
+#include "MotorCtrl.h"
+#include "global_variables.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -18,7 +20,7 @@
 
 char buffer[20];
 // ----- Function prototipes
-
+void parseSpeed(char* buffer);
 
 // *************************************************************************************************************************************
 
@@ -46,6 +48,7 @@ inline int uart_putchar(const uint8_t c)
 
 void UART_Handler(void)
 {
+	
 	uint8_t c = 0;
 	int i = 0;
 	memset(buffer, 0, sizeof(buffer));
@@ -134,7 +137,7 @@ void printInt(int value, char* buffer)
 	}
 }
 
-void parseSpeed(char* buffer, int len)
+void parseSpeed(char* buffer)
 {
 	char* token1;
 	token1 = strtok(buffer, "#");
@@ -150,9 +153,12 @@ void parseSpeed(char* buffer, int len)
 			sendString(token2, strlen(token2));
 			
 			char *end;
-			int speed1 = strtol(token1, &end, 10);
-			int speed2 = strtol(token2, &end, 10);
-			WriteMotors(speed1, speed2);
+			percentage_ST = strtol(token1, &end, 10);
+			percentage_DR = strtol(token2, &end, 10);
+			
+			newSpeed = 1;
+			
+			
 			//char parsed[2];
 			//parsed[0]=speed1;
 			//parsed[1]=speed2;

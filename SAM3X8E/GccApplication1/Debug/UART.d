@@ -78,7 +78,7 @@ UART.d UART.o: .././UART.c \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam3xa/include/instance/rtc.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam3xa/include/instance/gpbr.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam3xa/include/pio/sam3x8e.h \
- .././UART.h .././TmrCfg.h \
+ .././UART.h .././TmrCfg.h .././MotorCtrl.h .././global_variables.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\arm-gnu-toolchain\arm-none-eabi\include\stdio.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\arm-gnu-toolchain\arm-none-eabi\include\_ansi.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\arm-gnu-toolchain\arm-none-eabi\include\newlib.h \
@@ -262,6 +262,10 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_a
 .././UART.h:
 
 .././TmrCfg.h:
+
+.././MotorCtrl.h:
+
+.././global_variables.h:
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\arm-gnu-toolchain\arm-none-eabi\include\stdio.h:
 
