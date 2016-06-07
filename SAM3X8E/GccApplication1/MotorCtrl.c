@@ -10,6 +10,7 @@
 #include "sam.h"
 #include "TmrCfg.h"
 #include "MotorCtrl.h"
+#include "UART.h"
 
 // ----- Defines
 #define F_CPU 84000000L
@@ -98,3 +99,26 @@ void Init_Motors()
 	PIOC->PIO_CODR = PIO_PC23; // Arduino Due Pin 25
 	delay_ms(3000);
 }  
+
+void goForward(){
+	
+	int delta = 0;
+	char decizion = 0;
+	
+	delta = iEncoder_DR-iEncoder_ST;
+	
+	if(delta<0){
+		// viram stanga
+		decizion = 's';
+		iSpeed_DR =
+		
+		}else if(delta>0){
+		//viram dreapta
+		decizion = 'd';
+		}else{
+		//mergem in fata
+		decizion = 'o';
+	}
+	
+	uart_putchar(decizion);
+}

@@ -42,20 +42,15 @@ inline int uart_putchar(const uint8_t c)
 
 void UART_Handler(void)
 {
-	uint8_t c;
+	uint8_t c = 0;
 	
 	// Check if the interrupt source is receive ready
 	if(UART->UART_IMR & UART_IMR_RXRDY)
 	{
-		uart_getchar(&c);
-		if(c=='c'){
-			// Enable output
-			PIOD->PIO_SODR = PIO_PD7; // Arduino Due Pin 25
-			delay_ms(1000);
-			// Disable output
-			PIOD->PIO_CODR = PIO_PD7; // Arduino Due Pin 25
-			delay_ms(1000);
+		while(!uart_getchar(&c)){
+			uart_putchar(c+1);
 		}
+		
 	}
 }
 
@@ -101,4 +96,24 @@ void configure_uart(void)
 	// Enable receiver and trasmitter
 	UART->UART_CR |= UART_CR_RXEN | UART_CR_TXEN;
 	
+}
+
+
+void sendString(const char* c, uint16_t length){
+	for(int i = 0;i<length;i++){
+		while(uart_putchar(*(c+i)));
+	}
+}
+
+void printInt(int value, char* buffer)
+{
+	int i = 8;
+	buffer[i] = '0';
+	while(i>0)
+	{
+		buffer[i] = '0';
+		buffer[i] = value%10 + '0';
+		value /= 10;
+		i--;
+	}
 }

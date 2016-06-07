@@ -11,5 +11,6 @@
 	void InitPWMController_MCLK(void);
 	void Init_Motors(void);
 	void WriteMotors(int percent_ST, int percent_DR);
+	void goForward(void);
 	
 #endif

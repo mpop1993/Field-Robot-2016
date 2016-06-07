@@ -14,6 +14,9 @@
 #include "UART.h"
 #include "global_variables.h"
 #include "Encoders.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 // ----- Defines
 #define F_CPU 84000000L
@@ -50,20 +53,45 @@ int main(void)
 	
 	iEncoder_DR = 0;
 	iEncoder_ST = 0;
-	WriteMotors(50,50);
-	uint8_t speed = 50;
+	
+	int delta = 0;
+	char decizion = 0;
+	
+	iSpeed_DR = 70;
+	iSpeed_ST = 70;
+	char buffer[500];
 	
     while (1) 
     {
-		if(iEncoder_DR > 250){
-			WriteMotors(0,0);
-			iEncoder_DR = 0;
-			delay_ms(1000);
-			speed = speed + 5;
-			WriteMotors(speed,speed);
+		delta = iEncoder_DR-iEncoder_ST;
+		if(delta<0){
+			// viram dreapta
+			decizion = 'd';
+		}else if(delta>0){
+			//viram stanga
+			decizion = 's';
+		}else{
+			//mergem in fata
+			decizion = 'o';
 		}
-		uart_putchar(48);
 		
+		uart_putchar(decizion);
+		uart_putchar(10);
+		
+		//memset(buffer,0,sizeof(buffer));
+		//printInt(delta,buffer);
+		//buffer[9]=10;
+		//sendString(buffer,10);
+		
+		if(iEncoder_DR > 250){
+			iSpeed_DR = 0;
+			iEncoder_DR = 0;
+		}
+		if(iEncoder_ST > 250){
+			iSpeed_ST = 0;
+			iEncoder_ST = 0;
+		}
+		WriteMotors(iSpeed_ST,iSpeed_DR);
 	}
 }
 
