@@ -9,8 +9,9 @@
 
 	void InitPWMController_CLKA(void);
 	void InitPWMController_MCLK(void);
-	void Init_Motors(void);
+	void InitMotors(void);
 	void WriteMotors(int percent_ST, int percent_DR);
-	void goForward(void);
+	void ForwardDrive(void);
+	void ControlledDrive(uint8_t percentage_ST, uint8_t percentage_DR);
 	
 #endif

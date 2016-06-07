@@ -47,51 +47,14 @@ int main(void)
 	WDT->WDT_MR |=  WDT_MR_WDDIS;
 	
 	/* Run initialization sequence for motor drivers */
-	Init_Motors();
+	InitMotors();
 
 	//selfTest();
 	
-	iEncoder_DR = 0;
-	iEncoder_ST = 0;
-	
-	int delta = 0;
-	char decizion = 0;
-	
-	iSpeed_DR = 70;
-	iSpeed_ST = 70;
-	char buffer[500];
-	
     while (1) 
     {
-		delta = iEncoder_DR-iEncoder_ST;
-		if(delta<0){
-			// viram dreapta
-			decizion = 'd';
-		}else if(delta>0){
-			//viram stanga
-			decizion = 's';
-		}else{
-			//mergem in fata
-			decizion = 'o';
-		}
 		
-		uart_putchar(decizion);
-		uart_putchar(10);
 		
-		//memset(buffer,0,sizeof(buffer));
-		//printInt(delta,buffer);
-		//buffer[9]=10;
-		//sendString(buffer,10);
-		
-		if(iEncoder_DR > 250){
-			iSpeed_DR = 0;
-			iEncoder_DR = 0;
-		}
-		if(iEncoder_ST > 250){
-			iSpeed_ST = 0;
-			iEncoder_ST = 0;
-		}
-		WriteMotors(iSpeed_ST,iSpeed_DR);
 	}
 }
 
@@ -100,24 +63,24 @@ void selfTest(void){
 	
 	// BUZZER
 		// Enable output
-		PIOD->PIO_SODR = PIO_PD7; // Arduino Due Pin 25
+		PIOD->PIO_SODR = PIO_PD7;
 		delay_ms(1000);
 		// Disable output
-		PIOD->PIO_CODR = PIO_PD7; // Arduino Due Pin 25
+		PIOD->PIO_CODR = PIO_PD7;
 		delay_ms(1000);
 	
 	// PUMP
 		// Enable output
-		PIOC->PIO_SODR = PIO_PC24; // Arduino Due Pin 25
+		PIOC->PIO_SODR = PIO_PC24; 
 		delay_ms(1000);
 		// Disable output
-		PIOC->PIO_CODR = PIO_PC24; // Arduino Due Pin 25
+		PIOC->PIO_CODR = PIO_PC24;
 		delay_ms(1000);
 		
 	// MOTORS
-		WriteMotors(100,100);
+		WriteMotors(50,50);
 		delay_ms(1000);
-		WriteMotors(-100,-100);
+		WriteMotors(-50,-50);
 		delay_ms(1000);
 		WriteMotors(0,0);
 }

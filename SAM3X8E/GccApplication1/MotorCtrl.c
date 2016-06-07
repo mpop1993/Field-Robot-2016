@@ -11,6 +11,7 @@
 #include "TmrCfg.h"
 #include "MotorCtrl.h"
 #include "UART.h"
+#include "global_variables.h"
 
 // ----- Defines
 #define F_CPU 84000000L
@@ -23,7 +24,9 @@ void InitPWMController_MCLK(void);
 static void SetPeriod(uint32_t chan, int period);
 static void SetDuty(uint32_t chan, int duty);
 void WriteMotors(int percent_ST, int percent_DR);
-void Init_Motors();
+void InitMotors();
+void ForwardDrive(void);
+void ControlledDrive(uint8_t percentage_ST, uint8_t percentage_DR);
 
 // *************************************************************************************************************************************
 
@@ -77,48 +80,65 @@ void WriteMotors(int percent_ST, int percent_DR)
 	SetDuty(CHAN_DR,123-(percent_DR/2.43)); // PWM motor dreapta
 }
 
-void Init_Motors()
+void InitMotors()
 {
 	WriteMotors(0,0);
 	// Enable output
-	PIOC->PIO_SODR = PIO_PC23; // Arduino Due Pin 25
+	PIOC->PIO_SODR = PIO_PC23; 
 	delay_ms(1000);
 	
 	WriteMotors(100,100);//Stop Motors; Percent_RIGHT|Percent_LEFT
 	// Disable output
-	PIOC->PIO_CODR = PIO_PC23; // Arduino Due Pin 25
+	PIOC->PIO_CODR = PIO_PC23;
 	delay_ms(1000);
 	
 	WriteMotors(-100,-100);
 	// Enable output
-	PIOC->PIO_SODR = PIO_PC23; // Arduino Due Pin 25
+	PIOC->PIO_SODR = PIO_PC23;
 	delay_ms(1000);
 	
 	WriteMotors(0,0);//Stop Motors; Percent_RIGHT|Percent_LEFT
 	// Disable output
-	PIOC->PIO_CODR = PIO_PC23; // Arduino Due Pin 25
+	PIOC->PIO_CODR = PIO_PC23;
 	delay_ms(3000);
 }  
 
-void goForward(){
+void ForwardDrive(){
 	
 	int delta = 0;
 	char decizion = 0;
 	
 	delta = iEncoder_DR-iEncoder_ST;
 	
-	if(delta<0){
-		// viram stanga
-		decizion = 's';
-		iSpeed_DR =
-		
-		}else if(delta>0){
-		//viram dreapta
-		decizion = 'd';
-		}else{
-		//mergem in fata
-		decizion = 'o';
+		if(delta<0){
+			// viram stanga
+			decizion = 's';
+			iSpeed_DR = BASE_SPEED + 10;
+			iSpeed_ST = BASE_SPEED - 10;
+		}
+		else if(delta>0){
+			//viram dreapta
+			decizion = 'd';
+			iSpeed_DR = BASE_SPEED - 10;
+			iSpeed_ST = BASE_SPEED + 10;
+		}
+		else{
+			//mergem in fata
+			decizion = 'o';
+			iSpeed_DR = BASE_SPEED;
+			iSpeed_ST = BASE_SPEED;
 	}
 	
 	uart_putchar(decizion);
+	uart_putchar(10);
+	
+	WriteMotors(iSpeed_ST,iSpeed_DR);
+}
+
+
+void ControlledDrive(uint8_t percentage_ST, uint8_t percentage_DR){
+	
+	
+	
+	WriteMotors(iSpeed_ST,iSpeed_DR);
 }

@@ -78,7 +78,7 @@ MotorCtrl.d MotorCtrl.o: .././MotorCtrl.c \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam3xa/include/instance/rtc.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam3xa/include/instance/gpbr.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam3xa/include/pio/sam3x8e.h \
- .././TmrCfg.h .././MotorCtrl.h
+ .././TmrCfg.h .././MotorCtrl.h .././UART.h .././global_variables.h
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam.h:
 
@@ -241,3 +241,7 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_a
 .././TmrCfg.h:
 
 .././MotorCtrl.h:
+
+.././UART.h:
+
+.././global_variables.h:

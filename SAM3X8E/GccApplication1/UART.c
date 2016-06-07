@@ -10,9 +10,13 @@
 #include "sam.h"
 #include "UART.h"
 #include "TmrCfg.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 // ----- Local variables
 
-
+char buffer[20];
 // ----- Function prototipes
 
 
@@ -43,13 +47,25 @@ inline int uart_putchar(const uint8_t c)
 void UART_Handler(void)
 {
 	uint8_t c = 0;
+	int i = 0;
+	memset(buffer, 0, sizeof(buffer));
 	
 	// Check if the interrupt source is receive ready
 	if(UART->UART_IMR & UART_IMR_RXRDY)
 	{
-		while(!uart_getchar(&c)){
-			uart_putchar(c+1);
+		while(1)
+		{
+			while(!uart_getchar(&c)){
+				buffer[i++]=c;
+			}
+			if(c == '\n' || (i >sizeof(buffer)-3))
+				break;
 		}
+		buffer[i++] = '\r';
+		buffer[i++] = '\n';
+		sendString("Received: ", 10);
+		sendString(buffer, i);
+		parseSpeed(buffer);
 		
 	}
 }
@@ -115,5 +131,32 @@ void printInt(int value, char* buffer)
 		buffer[i] = value%10 + '0';
 		value /= 10;
 		i--;
+	}
+}
+
+void parseSpeed(char* buffer, int len)
+{
+	char* token1;
+	token1 = strtok(buffer, "#");
+	if(token1 != NULL)
+	{
+		char* token2;
+		token2 = strtok(NULL, "#");
+		if(token2 != NULL)
+		{
+			sendString("Speed1: ", 8);
+			sendString(token1, strlen(token1));
+			sendString(" Speed2: ", 8);
+			sendString(token2, strlen(token2));
+			
+			char *end;
+			int speed1 = strtol(token1, &end, 10);
+			int speed2 = strtol(token2, &end, 10);
+			WriteMotors(speed1, speed2);
+			//char parsed[2];
+			//parsed[0]=speed1;
+			//parsed[1]=speed2;
+			//sendString(parsed, 2);
+		}
 	}
 }

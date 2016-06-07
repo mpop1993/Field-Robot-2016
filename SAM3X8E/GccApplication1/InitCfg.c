@@ -77,4 +77,18 @@ void Pin_Configuration()
 		PIOC -> PIO_PER |= PIO_PC24;
 		PIOC -> PIO_OER |= PIO_PC24;
 		PIOC -> PIO_PUDR |= PIO_PC24;
+		
+	// Set pin 13[B27] as input for encoder data - left[ST]
+		//PIOB -> PIO_PER |= PIO_PB27;
+		//PIOB -> PIO_ODR |= PIO_PB27;
+		//PIOB -> PIO_PUDR |= PIO_PB27;
+		////Additional Interrupt Modes Enable Register
+		//PIOB->PIO_AIMER |= PIO_PB27;
+		////Edge Select Register
+		//PIOB->PIO_ESR |= PIO_PB27;
+		////Falling Edge/Low Level Select Register
+		//PIOB->PIO_REHLSR |= PIO_PB27;
+		////Finally enable interrupts on PORTB.PB27
+		//PIOB->PIO_IER |= PIO_PB27;
+		//NVIC_EnableIRQ(PIOB_IRQn);
 }
