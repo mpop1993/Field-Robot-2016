@@ -1,32 +1,18 @@
 #!/usr/bin/python
 
-# XV-11 Lidar Test
-# Copyright 2010 Nicolas "Xevel" Saugnier
-#
-#Licensed under the Apache License, Version 2.0 (the "License");
-#you may not use this file except in compliance with the License.
-#You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-#Unless required by applicable law or agreed to in writing, software
-#distributed under the License is distributed on an "AS IS" BASIS,
-#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#See the License for the specific language governing permissions and
-#limitations under the License.
-#
-# Version 0.3.7
-
-
-# Communication with the robot : PySerial
 import matplotlib
 import thread, time, sys, traceback, math
 import numpy as np
+import matplotlib
+matplotlib.rcParams['backend'] = "GTKAgg"
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import regulator
+
 #---------- SETTINGS --------------
 com_port = "/dev/ttyUSB0"  # example: 5 == "COM6" == "/dev/tty5"
+com_port2 = "/dev/ttyACM0"  # example: 5 == "COM6" == "/dev/tty5"
+
 baudrate = 115200
 #---------------------------------
 # serial port
@@ -157,10 +143,18 @@ def read_v_2_4():
         except :
             traceback.print_exc(file=sys.stdout)
 
+def read_compass():
+    nb_errors = 0
+    while True:
+        try:
+            regulator.busola = int(ser_compass.readline().strip('\0'))
+        except :
+            traceback.print_exc(file=sys.stdout)
+
 def timeout():
     for i in range(0,360):
         if timePt[i] is not None:
-            timePt[i] -= 1
+            timePt[i] -= 3
             if timePt[i] < 0:
                 x[i] = None
                 y[i] = None
@@ -183,7 +177,6 @@ plt.setp([a.get_xticklabels() for a in axarr[0, :]], visible=False)
 plt.setp([a.get_yticklabels() for a in axarr[:, 1]], visible=False)
 
 plt.ion()
-plt.show()
 
 def updateplot():
     while True:
@@ -194,7 +187,6 @@ def updateplot():
         plt.ylim(-100,100)
         axarr[1, 1].autoscale(enable=False)
         axarr[1, 1].scatter(x,y)
-
         axarr[0, 0].cla()
         axarr[0, 0].text(0.5, 0.5, str(regulator.stare), style='italic', fontsize=35,
                 verticalalignment='center', horizontalalignment='center',
@@ -210,14 +202,18 @@ def updateplot():
         axarr[1, 0].text(0.5, 0.5, 'Rotatie: ' + str(regulator.busola), style='italic', fontsize=25,
                          verticalalignment='center', horizontalalignment='center', color= 'red')
 
-       # f.savefig('/home/pnegirla/lidar.png')
+        f.savefig('lidar.png')
         plt.draw()
         plt.pause(0.0001)
 
+
 import serial
 ser = serial.Serial(com_port, baudrate)
-th = thread.start_new_thread(read_v_2_4, ())
+ser_compass = serial.Serial(com_port2, baudrate)
+
+th  = thread.start_new_thread(read_v_2_4, ())
 th2 = thread.start_new_thread(updateplot, ())
+th3  = thread.start_new_thread(read_compass, ())
 
 while True:
     time.sleep(0.1)
