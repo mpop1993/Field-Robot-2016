@@ -21,6 +21,9 @@
 // ----- Prototipes
 void selfTest(void);
 
+// ----- Local variables
+uint8_t c = 4;
+
 // *************************************************************************************************************************************
 
 int main(void)
@@ -34,7 +37,7 @@ int main(void)
 	/* Initialize timers */
 	Configure_Timers();
 	/* Configre UART */
-	//Configure_UART();
+	configure_uart();
 	
 	
 	/* Disable watchdog */
@@ -47,10 +50,19 @@ int main(void)
 	
 	iEncoder_DR = 0;
 	iEncoder_ST = 0;
-	WriteMotors(30,30);
+	WriteMotors(50,50);
+	uint8_t speed = 50;
 	
     while (1) 
     {
+		if(iEncoder_DR > 250){
+			WriteMotors(0,0);
+			iEncoder_DR = 0;
+			delay_ms(1000);
+			speed = speed + 5;
+			WriteMotors(speed,speed);
+		}
+		uart_putchar(48);
 		
 	}
 }

@@ -9,7 +9,7 @@
 // ----- Includes
 #include "sam.h"
 #include "UART.h"
-
+#include "TmrCfg.h"
 // ----- Local variables
 
 
@@ -18,7 +18,7 @@
 
 // *************************************************************************************************************************************
 
-int uart_getchar(uint8_t *c)
+inline int uart_getchar(uint8_t *c)
 {
 	// Check if the receiver is ready
 	if((UART->UART_SR & UART_SR_RXRDY) == 0)
@@ -29,7 +29,7 @@ int uart_getchar(uint8_t *c)
 	return 0;
 }
 
-int uart_putchar(const uint8_t c)
+inline int uart_putchar(const uint8_t c)
 {
 	// Check if the transmitter is ready
 	if(!(UART->UART_SR & UART_SR_TXRDY))
@@ -47,20 +47,25 @@ void UART_Handler(void)
 	// Check if the interrupt source is receive ready
 	if(UART->UART_IMR & UART_IMR_RXRDY)
 	{
-		if(uart_getchar(&c) == 0)
-		{
-			uart_putchar(c);
+		uart_getchar(&c);
+		if(c=='c'){
+			// Enable output
+			PIOD->PIO_SODR = PIO_PD7; // Arduino Due Pin 25
+			delay_ms(1000);
+			// Disable output
+			PIOD->PIO_CODR = PIO_PD7; // Arduino Due Pin 25
+			delay_ms(1000);
 		}
 	}
 }
 
-void Configure_UART(void)
+void configure_uart(void)
 {
 	uint32_t ul_sr;
 	
 	// ==> Pin configuration
 	// Disable interrupts on Rx and Tx
-	//PIOA->PIO_IDR = PIO_PA8A_URXD | PIO_PA9A_UTXD;
+	PIOA->PIO_IDR |= PIO_PA8A_URXD | PIO_PA9A_UTXD;
 	
 	// Disable the PIO of the Rx and Tx pins so that the peripheral controller can use them
 	PIOA->PIO_PDR |= PIO_PA8A_URXD | PIO_PA9A_UTXD;
@@ -70,7 +75,7 @@ void Configure_UART(void)
 	PIOA->PIO_ABSR &= ~(PIO_PA8A_URXD | PIO_PA9A_UTXD) & ul_sr;
 	
 	// Enable the pull up on the Rx and Tx pin
-	PIOA->PIO_PUER |= PIO_PA8A_URXD | PIO_PA9A_UTXD;
+	PIOA->PIO_PUER = PIO_PA8A_URXD | PIO_PA9A_UTXD;
 	
 	// ==> Actual uart configuration
 	// Enable the peripheral uart controller
@@ -89,10 +94,11 @@ void Configure_UART(void)
 	UART->UART_PTCR |= UART_PTCR_RXTDIS | UART_PTCR_TXTDIS;
 	
 	// Disable / Enable interrupts on end of receive
-	UART->UART_IDR |= 0xFFFFFFFF;
+	UART->UART_IDR = 0xFFFFFFFF;
 	NVIC_EnableIRQ((IRQn_Type) ID_UART);
-	UART->UART_IER |= UART_IER_RXRDY;
+	UART->UART_IER = UART_IER_RXRDY;
 	
 	// Enable receiver and trasmitter
 	UART->UART_CR |= UART_CR_RXEN | UART_CR_TXEN;
+	
 }
