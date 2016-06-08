@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+volatile uint8_t flag12=0;
 // ----- Defines
 #define F_CPU 84000000L
 
@@ -53,9 +53,14 @@ int main(void)
 	
     while (1) 
     {
-		if(newSpeed){
+		
+		
+	
+		if(getNewSpeed()){
+			
 			newSpeed = 0;
 			ControlledDrive(percentage_ST,percentage_DR);
+			flag12 = 0;
 		}
 		
 	}

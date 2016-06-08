@@ -20,4 +20,5 @@
 	extern int uart_putchar(const uint8_t c);
 	extern void sendString(const char* c, uint16_t length);
 	void printInt(int value, char* buffer);
+	uint8_t getNewSpeed();
 #endif
