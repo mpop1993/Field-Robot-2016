@@ -26,6 +26,7 @@ void PIOB_Handler()
 	//  check if PB27 is the one triggering the interrupt.
 	if((PIOB->PIO_ISR & PIO_PB27)==PIO_PB27){
 		iEncoder_ST++;
+		iEncoder_ST_current++;
 	}
 }
 
@@ -35,6 +36,7 @@ void PIOD_Handler()
 	//  check if PD8 is the one triggering the interrupt.
 	if((PIOD->PIO_ISR & PIO_PD8)==PIO_PD8){
 		iEncoder_DR++;
+		iEncoder_DR_current++;
 	}
 }
 

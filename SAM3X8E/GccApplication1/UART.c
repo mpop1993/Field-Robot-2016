@@ -9,16 +9,25 @@
 // ----- Includes
 #include "sam.h"
 #include "UART.h"
-
+#include "TmrCfg.h"
+#include "MotorCtrl.h"
+#include "global_variables.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+ volatile uint8_t percentage_ST;
+volatile uint8_t percentage_DR;
+ volatile uint8_t newSpeed;
+ extern volatile uint8_t flag12;
 // ----- Local variables
 
-
+char buffer[20];
 // ----- Function prototipes
-
+void parseSpeed(char* buffer);
 
 // *************************************************************************************************************************************
 
-int uart_getchar(uint8_t *c)
+inline int uart_getchar(uint8_t *c)
 {
 	// Check if the receiver is ready
 	if((UART->UART_SR & UART_SR_RXRDY) == 0)
@@ -29,7 +38,7 @@ int uart_getchar(uint8_t *c)
 	return 0;
 }
 
-int uart_putchar(const uint8_t c)
+inline int uart_putchar(const uint8_t c)
 {
 	// Check if the transmitter is ready
 	if(!(UART->UART_SR & UART_SR_TXRDY))
@@ -42,25 +51,39 @@ int uart_putchar(const uint8_t c)
 
 void UART_Handler(void)
 {
-	uint8_t c;
+	
+	uint8_t c = 0;
+	int i = 0;
+	int j =0;
+	memset(buffer, 0, sizeof(buffer));
 	
 	// Check if the interrupt source is receive ready
-	if(UART->UART_IMR & UART_IMR_RXRDY)
+	if((UART->UART_IMR & UART_IMR_RXRDY) && (!flag12))
 	{
-		if(uart_getchar(&c) == 0)
+		while(++j < 100000)
 		{
-			uart_putchar(c);
+			while(!uart_getchar(&c) && (j++ < 100000)){
+				buffer[i++]=c;
+			}
+			if(c == '\n' || (i >sizeof(buffer)-3))
+				break;
 		}
+		buffer[i++] = '\r';
+		buffer[i++] = '\n';
+		sendString("Receivedx: ", 10);
+		sendString(buffer, i);
+		parseSpeed(buffer);
+		
 	}
 }
 
-void Configure_UART(void)
+void configure_uart(void)
 {
 	uint32_t ul_sr;
 	
 	// ==> Pin configuration
 	// Disable interrupts on Rx and Tx
-	//PIOA->PIO_IDR = PIO_PA8A_URXD | PIO_PA9A_UTXD;
+	PIOA->PIO_IDR |= PIO_PA8A_URXD | PIO_PA9A_UTXD;
 	
 	// Disable the PIO of the Rx and Tx pins so that the peripheral controller can use them
 	PIOA->PIO_PDR |= PIO_PA8A_URXD | PIO_PA9A_UTXD;
@@ -70,7 +93,7 @@ void Configure_UART(void)
 	PIOA->PIO_ABSR &= ~(PIO_PA8A_URXD | PIO_PA9A_UTXD) & ul_sr;
 	
 	// Enable the pull up on the Rx and Tx pin
-	PIOA->PIO_PUER |= PIO_PA8A_URXD | PIO_PA9A_UTXD;
+	PIOA->PIO_PUER = PIO_PA8A_URXD | PIO_PA9A_UTXD;
 	
 	// ==> Actual uart configuration
 	// Enable the peripheral uart controller
@@ -89,10 +112,74 @@ void Configure_UART(void)
 	UART->UART_PTCR |= UART_PTCR_RXTDIS | UART_PTCR_TXTDIS;
 	
 	// Disable / Enable interrupts on end of receive
-	UART->UART_IDR |= 0xFFFFFFFF;
+	UART->UART_IDR = 0xFFFFFFFF;
 	NVIC_EnableIRQ((IRQn_Type) ID_UART);
-	UART->UART_IER |= UART_IER_RXRDY;
+	UART->UART_IER = UART_IER_RXRDY;
 	
 	// Enable receiver and trasmitter
 	UART->UART_CR |= UART_CR_RXEN | UART_CR_TXEN;
+	
+}
+
+
+void sendString(const char* c, uint16_t length){
+	for(int i = 0;i<length;i++){
+		while(uart_putchar(*(c+i)));
+	}
+}
+
+void printInt(int value, char* buffer)
+{
+	int i = 8;
+	buffer[i] = '0';
+	while(i>0)
+	{
+		buffer[i] = '0';
+		buffer[i] = value%10 + '0';
+		value /= 10;
+		i--;
+	}
+}
+uint8_t getNewSpeed()
+{
+	if(flag12)
+	{
+	//	sendString("Set:\n", 5);
+		return 1;
+	}
+	else
+	{
+		//sendString("UnSet:\n", 7);
+		return 0;
+	}
+}
+
+void parseSpeed(char* buffer)
+{
+	char* token1;
+	token1 = strtok(buffer, "#");
+	if(token1 != NULL)
+	{
+		char* token2;
+		token2 = strtok(NULL, "#");
+		if(token2 != NULL)
+		{
+			sendString("Speed1: ", 8);
+			sendString(token1, strlen(token1));
+			sendString(" Speed2: ", 8);
+			sendString(token2, strlen(token2));
+			
+			char *end;
+			percentage_ST = strtol(token1, &end, 10);
+			percentage_DR = strtol(token2, &end, 10);
+			
+			newSpeed = 1;
+			flag12=1;
+			
+			//char parsed[2];
+			//parsed[0]=speed1;
+			//parsed[1]=speed2;
+			//sendString(parsed, 2);
+		}
+	}
 }

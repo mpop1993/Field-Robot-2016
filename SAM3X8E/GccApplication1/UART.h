@@ -15,8 +15,10 @@
 	
 #elif defined(SUPERVISED_MODE)
 
-	void Configure_UART(void);
-	int uart_getchar(uint8_t *c);
-	int uart_putchar(const uint8_t c);
-
+	void configure_uart(void);
+	extern int uart_getchar(uint8_t *c);
+	extern int uart_putchar(const uint8_t c);
+	extern void sendString(const char* c, uint16_t length);
+	void printInt(int value, char* buffer);
+	uint8_t getNewSpeed();
 #endif

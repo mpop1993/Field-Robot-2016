@@ -14,12 +14,18 @@
 #include "UART.h"
 #include "global_variables.h"
 #include "Encoders.h"
-
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+volatile uint8_t flag12=0;
 // ----- Defines
 #define F_CPU 84000000L
 
 // ----- Prototipes
 void selfTest(void);
+
+// ----- Local variables
+uint8_t c = 4;
 
 // *************************************************************************************************************************************
 
@@ -34,23 +40,28 @@ int main(void)
 	/* Initialize timers */
 	Configure_Timers();
 	/* Configre UART */
-	//Configure_UART();
+	configure_uart();
 	
 	
 	/* Disable watchdog */
 	WDT->WDT_MR |=  WDT_MR_WDDIS;
 	
 	/* Run initialization sequence for motor drivers */
-	Init_Motors();
+	InitMotors();
 
 	//selfTest();
 	
-	iEncoder_DR = 0;
-	iEncoder_ST = 0;
-	WriteMotors(30,30);
-	
     while (1) 
     {
+		
+		
+	
+		if(getNewSpeed()){
+			
+			newSpeed = 0;
+			ControlledDrive(percentage_ST,percentage_DR);
+			flag12 = 0;
+		}
 		
 	}
 }
@@ -60,24 +71,24 @@ void selfTest(void){
 	
 	// BUZZER
 		// Enable output
-		PIOD->PIO_SODR = PIO_PD7; // Arduino Due Pin 25
+		PIOD->PIO_SODR = PIO_PD7;
 		delay_ms(1000);
 		// Disable output
-		PIOD->PIO_CODR = PIO_PD7; // Arduino Due Pin 25
+		PIOD->PIO_CODR = PIO_PD7;
 		delay_ms(1000);
 	
 	// PUMP
 		// Enable output
-		PIOC->PIO_SODR = PIO_PC24; // Arduino Due Pin 25
+		PIOC->PIO_SODR = PIO_PC24; 
 		delay_ms(1000);
 		// Disable output
-		PIOC->PIO_CODR = PIO_PC24; // Arduino Due Pin 25
+		PIOC->PIO_CODR = PIO_PC24;
 		delay_ms(1000);
 		
 	// MOTORS
-		WriteMotors(100,100);
+		WriteMotors(50,50);
 		delay_ms(1000);
-		WriteMotors(-100,-100);
+		WriteMotors(-50,-50);
 		delay_ms(1000);
 		WriteMotors(0,0);
 }
