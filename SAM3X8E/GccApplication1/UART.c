@@ -15,15 +15,21 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
- volatile uint8_t percentage_ST;
-volatile uint8_t percentage_DR;
- volatile uint8_t newSpeed;
- extern volatile uint8_t flag12;
-// ----- Local variables
 
+ 
+// ----- Local variables
 char buffer[20];
+int i = 0;
+volatile uint8_t percentage_ST;
+volatile uint8_t percentage_DR;
+volatile uint8_t sign_ST;
+volatile uint8_t sign_DR;
+volatile uint8_t newSpeed;
+extern volatile uint8_t flag12;
+
 // ----- Function prototipes
 void parseSpeed(char* buffer);
+int signum(int x);
 
 // *************************************************************************************************************************************
 
@@ -51,29 +57,94 @@ inline int uart_putchar(const uint8_t c)
 
 void UART_Handler(void)
 {
-	
 	uint8_t c = 0;
-	int i = 0;
-	int j =0;
-	memset(buffer, 0, sizeof(buffer));
 	
 	// Check if the interrupt source is receive ready
 	if((UART->UART_IMR & UART_IMR_RXRDY) && (!flag12))
 	{
-		while(++j < 100000)
-		{
-			while(!uart_getchar(&c) && (j++ < 100000)){
-				buffer[i++]=c;
-			}
-			if(c == '\n' || (i >sizeof(buffer)-3))
-				break;
+		if(!uart_getchar(&c)){
+			buffer[i++] = c;
 		}
-		buffer[i++] = '\r';
-		buffer[i++] = '\n';
-		sendString("Receivedx: ", 10);
-		sendString(buffer, i);
-		parseSpeed(buffer);
+		if(c=='\n'){
+			sendString(buffer, i); // make an echo of the whole buffer untill now
+			parseSpeed(buffer);
+			memset(buffer, 0, sizeof(buffer));
+			i = 0;
+		}
+	}
+}
+
+void sendString(const char* c, uint16_t length){
+	for(int i = 0;i<length;i++){
+		while(uart_putchar(*(c+i)));
+	}
+}
+
+void printInt(int value, char* buffer)
+{
+	int i = 8;
+	buffer[i] = '0';
+	while(i>0)
+	{
+		buffer[i] = '0';
+		buffer[i] = value%10 + '0';
+		value /= 10;
+		i--;
+	}
+}
+
+uint8_t getNewSpeed()
+{
+	if(flag12)
+	{
+	//	sendString("Set:\n", 5);
+		return 1;
+	}
+	else
+	{
+		//sendString("UnSet:\n", 7);
+		return 0;
+	}
+}
+
+void parseSpeed(char* buffer)
+{
+	sign_ST = 0;
+	sign_DR = 0;
+	
+	char* token1;
+	token1 = strtok(buffer, "#");
+	
+	if(token1 != NULL)
+	{
+		char* token2;
+		token2 = strtok(NULL, "#");
 		
+		if(token2 != NULL)
+		{
+			char *end;
+			percentage_ST = strtol((token1+1), &end, 10);
+			percentage_DR = strtol((token2+1), &end, 10);
+			
+			sendString("Speed ST: ", 10);
+			sendString(token1, strlen(token1));
+
+			if (token1[0] == 0x2d) {
+				// minus
+				sign_ST = 1;
+			}
+			
+			sendString("Speed DR: ", 10);
+			sendString(token2, strlen(token2));
+			
+			if (token2[0] == 0x2d) {
+				 // minus
+				 sign_DR = 1;
+			}
+			
+			newSpeed = 1;
+			flag12=1;
+		}
 	}
 }
 
@@ -121,65 +192,8 @@ void configure_uart(void)
 	
 }
 
-
-void sendString(const char* c, uint16_t length){
-	for(int i = 0;i<length;i++){
-		while(uart_putchar(*(c+i)));
-	}
+int signum(int x){
+	if (x > 0) return 1;
+	else return -1;
 }
 
-void printInt(int value, char* buffer)
-{
-	int i = 8;
-	buffer[i] = '0';
-	while(i>0)
-	{
-		buffer[i] = '0';
-		buffer[i] = value%10 + '0';
-		value /= 10;
-		i--;
-	}
-}
-uint8_t getNewSpeed()
-{
-	if(flag12)
-	{
-	//	sendString("Set:\n", 5);
-		return 1;
-	}
-	else
-	{
-		//sendString("UnSet:\n", 7);
-		return 0;
-	}
-}
-
-void parseSpeed(char* buffer)
-{
-	char* token1;
-	token1 = strtok(buffer, "#");
-	if(token1 != NULL)
-	{
-		char* token2;
-		token2 = strtok(NULL, "#");
-		if(token2 != NULL)
-		{
-			sendString("Speed1: ", 8);
-			sendString(token1, strlen(token1));
-			sendString(" Speed2: ", 8);
-			sendString(token2, strlen(token2));
-			
-			char *end;
-			percentage_ST = strtol(token1, &end, 10);
-			percentage_DR = strtol(token2, &end, 10);
-			
-			newSpeed = 1;
-			flag12=1;
-			
-			//char parsed[2];
-			//parsed[0]=speed1;
-			//parsed[1]=speed2;
-			//sendString(parsed, 2);
-		}
-	}
-}

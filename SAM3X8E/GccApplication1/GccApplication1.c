@@ -18,14 +18,18 @@
 #include <string.h>
 #include <stdlib.h>
 volatile uint8_t flag12=0;
+
 // ----- Defines
 #define F_CPU 84000000L
+#define TASK_1
 
 // ----- Prototipes
 void selfTest(void);
 
 // ----- Local variables
 uint8_t c = 4;
+volatile uint8_t startStop_Camera;
+volatile uint8_t initializeMotors;
 
 // *************************************************************************************************************************************
 
@@ -42,28 +46,79 @@ int main(void)
 	/* Configre UART */
 	configure_uart();
 	
-	
 	/* Disable watchdog */
 	WDT->WDT_MR |=  WDT_MR_WDDIS;
-	
-	/* Run initialization sequence for motor drivers */
-	InitMotors();
 
 	//selfTest();
 	
-    while (1) 
-    {
-		
-		
+	// Set variables 
+	initializeMotors = 0;
 	
-		if(getNewSpeed()){
+	// ----- TASK_1
+	#if defined(TASK_1)
+	
+		while (1)
+		{	
+			if(initializeMotors){
+				InitMotors();
+				initializeMotors = 0;
+			}
 			
-			newSpeed = 0;
-			ControlledDrive(percentage_ST,percentage_DR);
-			flag12 = 0;
+			if(getNewSpeed()){
+				newSpeed = 0;
+				ControlledDrive(percentage_ST,percentage_DR);
+				flag12 = 0;
+			}
+		
+			//ForwardDrive();
 		}
 		
-	}
+	// ----- TASK_2
+	#elif defined(TASK_2)
+	
+		while (1)
+		{
+			
+		}
+	
+	// ----- TASK_3
+	#elif defined(TASK_3)
+		
+		startStop_Camera = 0;
+		
+		while (1)
+		{
+			if(initializeMotors){
+				InitMotors();
+				initializeMotors = 0;
+			}
+
+			if(startStop_Camera)
+			{ // Stop motors and ignore lidar values 
+				WriteMotors(0,0);
+			}
+			else
+			{ // Start and go based on lidar values
+				//if(getNewSpeed()){
+				//newSpeed = 0;
+				//ControlledDrive(percentage_ST,percentage_DR);
+				//flag12 = 0;
+				//}
+
+				ForwardDrive();
+			}
+		}
+	
+	// ----- TASK_4
+	#elif defined(TASK_4)
+	
+		while (1)
+		{
+			
+		}	
+	
+	#endif
+
 }
 
 

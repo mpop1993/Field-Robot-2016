@@ -11,9 +11,9 @@
 #include "Encoders.h"
 #include "global_variables.h"
 #include "TmrCfg.h"
+#include "MotorCtrl.h"
 
 // ----- Local variables
-
 
 // ----- Function prototipes
 
@@ -39,5 +39,32 @@ void PIOD_Handler()
 		iEncoder_DR_current++;
 	}
 }
+
+void PIOC_Handler()
+{
+	//Since the interrupt could be any pin on PORTC we need to
+	//  check if PC25 is the one triggering the interrupt.
+	uint32_t status = PIOC->PIO_ISR;
+	
+	if((status & PIO_PC25)==PIO_PC25)
+	{
+		if(startStop_Camera)
+		{
+			startStop_Camera = 0;
+		}
+		else
+		{
+			startStop_Camera = 1;
+		}
+	}
+	else if((status & PIO_PC28)==PIO_PC28)
+	{
+		if(initializeMotors == 0)
+		{
+			initializeMotors = 1;
+		}
+	}
+}
+
 
 

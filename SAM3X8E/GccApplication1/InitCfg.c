@@ -16,6 +16,8 @@
 // *************************************************************************************************************************************
 void Pin_Configuration()
 {
+	// Enable clock for line A
+		PMC->PMC_PCER0 |= _BV(ID_PIOA);
 	// Enable clock for line C
 		PMC->PMC_PCER0 |= _BV(ID_PIOC);
 	// Enable clock for line B
@@ -31,7 +33,7 @@ void Pin_Configuration()
 		PIOB->PIO_AIMER |= PIO_PB27;
 		//Edge Select Register
 		PIOB->PIO_ESR |= PIO_PB27;
-		//Falling Edge/Low Level Select Register
+		//Rising Edge/Low Level Select Register
 		PIOB->PIO_REHLSR |= PIO_PB27;
 		//Finally enable interrupts on PORTB.PB27
 		PIOB->PIO_IER |= PIO_PB27;
@@ -45,7 +47,7 @@ void Pin_Configuration()
 		PIOD -> PIO_AIMER |= PIO_PD8;
 		//Edge Select Register
 		PIOD -> PIO_ESR |= PIO_PD8;
-		//Falling Edge/Low Level Select Register
+		//Rising Edge/Low Level Select Register
 		PIOD -> PIO_REHLSR |= PIO_PD8;
 		//Finally enable interrupts on PORTD.PD8
 		PIOD -> PIO_IER |= PIO_PD8;
@@ -78,17 +80,61 @@ void Pin_Configuration()
 		PIOC -> PIO_OER |= PIO_PC24;
 		PIOC -> PIO_PUDR |= PIO_PC24;
 		
-	// Set pin 13[B27] as input for encoder data - left[ST]
-		//PIOB -> PIO_PER |= PIO_PB27;
-		//PIOB -> PIO_ODR |= PIO_PB27;
-		//PIOB -> PIO_PUDR |= PIO_PB27;
+	// Set pin 5[C25] as input for start/stop from camera
+		PIOC -> PIO_PER |= PIO_PC25;
+		PIOC -> PIO_ODR |= PIO_PC25;
+		PIOC -> PIO_PUDR |= PIO_PC25;
+		//Additional Interrupt Modes Enable Register
+		PIOC->PIO_AIMER |= PIO_PC25;
+		//Edge Select Register
+		PIOC->PIO_ESR |= PIO_PC25;
+		//Rising Edge/Low Level Select Register
+		PIOC->PIO_REHLSR |= PIO_PC25;
+		//Finally enable interrupts on PORTB.PB27
+		PIOC->PIO_IER |= PIO_PC25;
+		NVIC_EnableIRQ(PIOC_IRQn);
+		
+	// Set pin 3[C28] as input for motor init
+		PIOC -> PIO_PER |= PIO_PC28;
+		PIOC -> PIO_ODR |= PIO_PC28;
+		PIOC -> PIO_PUDR |= PIO_PC28;
+		//Additional Interrupt Modes Enable Register
+		PIOC->PIO_AIMER |= PIO_PC28;
+		//Edge Select Register
+		PIOC->PIO_ESR |= PIO_PC28;
+		//Rising Edge/Low Level Select Register
+		PIOC->PIO_REHLSR |= PIO_PC28;
+		//Finally enable interrupts on PORTC.PC28
+		PIOC->PIO_IER |= PIO_PC28;
+		NVIC_EnableIRQ(PIOC_IRQn);
+		
+	//// Set pin 5[C25] as input for start/stop from camera
+		//PIOA -> PIO_PER |= PIO_PA14;
+		//PIOA -> PIO_ODR |= PIO_PA14;
+		//PIOA -> PIO_PUDR |= PIO_PA14;
 		////Additional Interrupt Modes Enable Register
-		//PIOB->PIO_AIMER |= PIO_PB27;
+		//PIOA->PIO_AIMER |= PIO_PA14;
 		////Edge Select Register
-		//PIOB->PIO_ESR |= PIO_PB27;
-		////Falling Edge/Low Level Select Register
-		//PIOB->PIO_REHLSR |= PIO_PB27;
+		//PIOA->PIO_ESR |= PIO_PA14;
+		////Rising Edge/Low Level Select Register
+		//PIOA->PIO_REHLSR |= PIO_PA14;
 		////Finally enable interrupts on PORTB.PB27
-		//PIOB->PIO_IER |= PIO_PB27;
-		//NVIC_EnableIRQ(PIOB_IRQn);
+		//PIOA->PIO_IER |= PIO_PA14;
+		//NVIC_EnableIRQ(PIOA_IRQn);
+		
+		// ----- TASK_1 Interrupt priority
+		#if defined(TASK_1)
+			
+		// ----- TASK_2 Interrupt priority
+		#elif defined(TASK_2)
+		
+		// ----- TASK_3 Interrupt priority
+		#elif defined(TASK_3)
+			NVIC_SetPriority(PIOC_IRQn,1);
+		// ----- TASK_4 Interrupt priority
+		#elif defined(TASK_4)
+	
+		#endif
 }
+
+

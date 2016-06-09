@@ -78,7 +78,7 @@ Encoders.d Encoders.o: .././Encoders.c \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam3xa/include/instance/rtc.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam3xa/include/instance/gpbr.h \
  c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam3xa/include/pio/sam3x8e.h \
- .././Encoders.h .././global_variables.h .././TmrCfg.h
+ .././Encoders.h .././global_variables.h .././TmrCfg.h .././MotorCtrl.h
 
 c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_atmel\device\atmel\sam.h:
 
@@ -243,3 +243,5 @@ c:\program\ files\ (x86)\atmel\atmel\ toolchain\arm\ gcc\native\4.8.1437\cmsis_a
 .././global_variables.h:
 
 .././TmrCfg.h:
+
+.././MotorCtrl.h:

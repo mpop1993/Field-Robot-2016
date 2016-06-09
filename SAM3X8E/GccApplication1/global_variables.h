@@ -7,7 +7,6 @@
 
 // ----- Encoder related variables
 
-
 #define ENCODER_DR 250
 #define ENCODER_ST 250
 #define BASE_SPEED 70
@@ -18,8 +17,14 @@ volatile uint32_t iEncoder_DR;
 volatile uint32_t iEncoder_ST;
 volatile uint32_t iEncoder_DR_current;
 volatile uint32_t iEncoder_ST_current;
-volatile uint16_t iSpeed_DR;
-volatile uint16_t iSpeed_ST;
+volatile int iSpeed_DR;
+volatile int iSpeed_ST;
 extern volatile uint8_t percentage_ST;
 extern volatile uint8_t percentage_DR;
+extern volatile uint8_t sign_ST;
+extern volatile uint8_t sign_DR;
 extern volatile uint8_t newSpeed;
+
+
+extern volatile uint8_t startStop_Camera;
+extern volatile uint8_t initializeMotors;
