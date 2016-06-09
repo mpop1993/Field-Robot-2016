@@ -10,10 +10,11 @@ from matplotlib.widgets import Button
 import regulator
 
 #---------- SETTINGS --------------
-com_port = "/dev/ttyUSB0"  # example: 5 == "COM6" == "/dev/tty5"
-com_port2 = "/dev/ttyACM0"  # example: 5 == "COM6" == "/dev/tty5"
+com_port_lidar = "/dev/ttyUSB1"  # example: 5 == "COM6" == "/dev/tty5"
+com_port_compass = "/dev/ttyACM0"  # example: 5 == "COM6" == "/dev/tty5"
 
-baudrate = 115200
+baudrate_lidar = 115200
+baudrate_compass = 57600
 #---------------------------------
 # serial port
 ser = None
@@ -40,9 +41,10 @@ def parsedata( angle, data, x ,y):
     # display the sample
     if x1 & 0x80: # is the flag for "bad data" set?
         ok = 0
-    #    print "Bad data at " + str(angle) + " speed to high"
+#        print "Bad data at " + str(angle) + " speed too high"
     else:
         if not x1 & 0x40:
+ #           print "Good data at " + str(angle) + " speed to high"
             addPoint(dist_mm, angle, x, y)
         else:
             ok = -1
@@ -98,7 +100,8 @@ def read_v_2_4():
     nb_errors = 0
     while True:
         try:
- #          time.sleep(0.1) # do not hog the processor power
+  #          print "getting data from lidar"
+            time.sleep(0.1) # do not hog the processor power
             if init_level == 0 :
                 b = ord(ser.read(1))
                 # start byte
@@ -148,6 +151,7 @@ def read_compass():
     while True:
         try:
             regulator.busola = int(ser_compass.readline().strip('\0'))
+	    print "busola " + str(regulator.busola)
         except :
             traceback.print_exc(file=sys.stdout)
 
@@ -173,13 +177,15 @@ axarr[0, 1].set_title('Motoare')
 axarr[1, 0].set_title('Busola')
 axarr[1, 1].set_title('Lidar')
 # Fine-tune figure; hide x ticks for top plots and y ticks for right plots
-plt.setp([a.get_xticklabels() for a in axarr[0, :]], visible=False)
-plt.setp([a.get_yticklabels() for a in axarr[:, 1]], visible=False)
+#plt.setp([a.get_xticklabels() for a in axarr[0, :]], visible=False)
+#plt.setp([a.get_yticklabels() for a in axarr[:, 1]], visible=False)
 
 plt.ion()
 
+time.sleep(5)
 def updateplot():
     while True:
+	print "updatingplot"
         axarr[1, 1].cla()
         axarr[1, 1].grid()
         timeout()
@@ -202,20 +208,20 @@ def updateplot():
         axarr[1, 0].text(0.5, 0.5, 'Rotatie: ' + str(regulator.busola), style='italic', fontsize=25,
                          verticalalignment='center', horizontalalignment='center', color= 'red')
 
-        f.savefig('lidar.png')
+        #f.savefig('lidar.png')
         plt.draw()
-        plt.pause(0.0001)
+        plt.pause(0.1)
 
 
 import serial
 import os.path
 
-if os.path.exists(com_port):
-    ser = serial.Serial(com_port, baudrate)
+if os.path.exists(com_port_lidar):
+    ser = serial.Serial(com_port_lidar, baudrate_lidar)
     th = thread.start_new_thread(read_v_2_4, ())
 
-if os.path.exists(com_port2):
-    ser_compass = serial.Serial(com_port2, baudrate)
+if os.path.exists(com_port_compass):
+    ser_compass = serial.Serial(com_port_compass, baudrate_compass)
     th3 = thread.start_new_thread(read_compass, ())
 
 th2 = thread.start_new_thread(updateplot, ())
