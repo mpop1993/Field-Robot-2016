@@ -208,12 +208,17 @@ def updateplot():
 
 
 import serial
-ser = serial.Serial(com_port, baudrate)
-ser_compass = serial.Serial(com_port2, baudrate)
+import os.path
 
-th  = thread.start_new_thread(read_v_2_4, ())
+if os.path.exists(com_port):
+    ser = serial.Serial(com_port, baudrate)
+    th = thread.start_new_thread(read_v_2_4, ())
+
+if os.path.exists(com_port2):
+    ser_compass = serial.Serial(com_port2, baudrate)
+    th3 = thread.start_new_thread(read_compass, ())
+
 th2 = thread.start_new_thread(updateplot, ())
-th3  = thread.start_new_thread(read_compass, ())
 
 while True:
     time.sleep(0.1)
