@@ -127,13 +127,13 @@ void Pin_Configuration()
 			
 		// ----- TASK_2 Interrupt priority
 		#elif defined(TASK_2)
-		
+			
 		// ----- TASK_3 Interrupt priority
 		#elif defined(TASK_3)
 			NVIC_SetPriority(PIOC_IRQn,1);
 		// ----- TASK_4 Interrupt priority
 		#elif defined(TASK_4)
-	
+			
 		#endif
 }
 

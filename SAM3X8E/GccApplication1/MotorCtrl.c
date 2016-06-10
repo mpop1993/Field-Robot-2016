@@ -26,7 +26,7 @@ static void SetDuty(uint32_t chan, int duty);
 void WriteMotors(int percent_ST, int percent_DR);
 void InitMotors();
 void ForwardDrive(void);
-void ControlledDrive(uint8_t percentage_ST, uint8_t percentage_DR);
+void ControlledDrive(uint32_t percentage_ST, uint32_t percentage_DR);
 void signum(int x);
 
 // *************************************************************************************************************************************
@@ -138,7 +138,7 @@ void ForwardDrive(){
 
 // 255 impulsuri ~ 60 cm 
 // 
-void ControlledDrive(uint8_t percent_ST, uint8_t percent_DR){
+void ControlledDrive(uint32_t percent_ST, uint32_t percent_DR){
 	if(sign_ST==1){
 		iSpeed_ST=-70;
 	}else{
@@ -159,8 +159,8 @@ void ControlledDrive(uint8_t percent_ST, uint8_t percent_DR){
 	
 	//iSpeed_ST=-70;
 	//iSpeed_DR=-70;
-	
-	while((st<1)||(dr<1)){
+	int timeout = 0;
+	while(!(st && dr) && (timeout < 100000)){
 		if(iEncoder_DR_current >= percent_DR){
 			iSpeed_DR = 0;
 			st=1;
@@ -170,8 +170,13 @@ void ControlledDrive(uint8_t percent_ST, uint8_t percent_DR){
 			dr=1;
 		}
 		WriteMotors(iSpeed_ST,iSpeed_DR);
+		timeout++;
 	}
+	WriteMotors(0,0);
 	
+}
+
+void ControlledDrive_Speed(uint8_t speedST, uint8_t speed_DR){
 	
 }
 

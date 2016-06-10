@@ -19,9 +19,9 @@
  
 // ----- Local variables
 char buffer[20];
-int i = 0;
-volatile uint8_t percentage_ST;
-volatile uint8_t percentage_DR;
+
+volatile uint32_t percentage_ST;
+volatile uint32_t percentage_DR;
 volatile uint8_t sign_ST;
 volatile uint8_t sign_DR;
 volatile uint8_t newSpeed;
@@ -35,42 +35,64 @@ int signum(int x);
 
 inline int uart_getchar(uint8_t *c)
 {
+	*c = 0; 
 	// Check if the receiver is ready
-	if((UART->UART_SR & UART_SR_RXRDY) == 0)
+	for(int j = 0; j < 100000; j++)
+	{
+		if(UART->UART_SR & UART_SR_RXRDY)
+		{
+			// Read the character
+			*c = (uint8_t) UART->UART_RHR;
+			return 0;
+		}
+	}
 	return 1;
-	
-	// Read the character
-	*c = (uint8_t) UART->UART_RHR;
-	return 0;
 }
 
 inline int uart_putchar(const uint8_t c)
 {
 	// Check if the transmitter is ready
-	if(!(UART->UART_SR & UART_SR_TXRDY))
+	for(int j = 0; j < 100000; j++)
+	{
+		if(UART->UART_SR & UART_SR_TXRDY)
+		{
+			UART->UART_THR = c;
+			return 0;
+		}
+	}
+
 	return 1;
-	
-	// Send the character
-	UART->UART_THR = c;
-	return 0;
 }
 
 void UART_Handler(void)
 {
-	uint8_t c = 0;
-	
-	// Check if the interrupt source is receive ready
-	if((UART->UART_IMR & UART_IMR_RXRDY) && (!flag12))
-	{
-		if(!uart_getchar(&c)){
-			buffer[i++] = c;
+   if(UART->UART_IMR & UART_IMR_RXRDY)
+   {
+		static int i = 0;
+		uint8_t c = UART->UART_RHR;
+		UART->UART_THR = c; // echo back
+
+		if(i > sizeof(buffer)-1)
+		{
+			sendString("####Too much data received\n", 27);
+			memset(buffer, 0, sizeof(buffer));
+			i = 0;
+			return;
 		}
-		if(c=='\n'){
+	
+		buffer[i] = c;
+		if(buffer[i] == '\n')
+		{
+			sendString("#### Parsing Strings: ", 22);
 			sendString(buffer, i); // make an echo of the whole buffer untill now
+			uart_putchar('\n');
 			parseSpeed(buffer);
 			memset(buffer, 0, sizeof(buffer));
 			i = 0;
+			return;
 		}
+
+		i++;
 	}
 }
 
@@ -97,7 +119,7 @@ uint8_t getNewSpeed()
 {
 	if(flag12)
 	{
-	//	sendString("Set:\n", 5);
+		//sendString("Set:\n", 5);
 		return 1;
 	}
 	else
@@ -134,7 +156,7 @@ void parseSpeed(char* buffer)
 				sign_ST = 1;
 			}
 			
-			sendString("Speed DR: ", 10);
+			sendString(" Speed DR: ", 11);
 			sendString(token2, strlen(token2));
 			
 			if (token2[0] == 0x2d) {

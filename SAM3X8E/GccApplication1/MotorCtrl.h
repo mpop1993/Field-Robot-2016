@@ -12,6 +12,6 @@
 	void InitMotors(void);
 	void WriteMotors(int percent_ST, int percent_DR);
 	void ForwardDrive(void);
-	void ControlledDrive(uint8_t percentage_ST, uint8_t percentage_DR);
+	void ControlledDrive(uint32_t percentage_ST, uint32_t percentage_DR);
 	
 #endif

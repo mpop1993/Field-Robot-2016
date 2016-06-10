@@ -46,6 +46,8 @@ int main(void)
 	/* Configre UART */
 	configure_uart();
 	
+	sendString("###ON \n", 7);
+
 	/* Disable watchdog */
 	WDT->WDT_MR |=  WDT_MR_WDDIS;
 
@@ -56,15 +58,19 @@ int main(void)
 	
 	// ----- TASK_1
 	#if defined(TASK_1)
-	
 		while (1)
 		{	
-			if(initializeMotors){
+
+			if(initializeMotors)
+			{
+				sendString("###Initializing\n", 16);
 				InitMotors();
 				initializeMotors = 0;
 			}
 			
-			if(getNewSpeed()){
+			if(getNewSpeed())
+			{
+				sendString("###New Speed\n", 14);
 				newSpeed = 0;
 				ControlledDrive(percentage_ST,percentage_DR);
 				flag12 = 0;
@@ -88,7 +94,9 @@ int main(void)
 		
 		while (1)
 		{
-			if(initializeMotors){
+			if(initializeMotors)
+			{
+				sendString("###Initializing\n", 16);
 				InitMotors();
 				initializeMotors = 0;
 			}
@@ -99,13 +107,16 @@ int main(void)
 			}
 			else
 			{ // Start and go based on lidar values
-				//if(getNewSpeed()){
-				//newSpeed = 0;
-				//ControlledDrive(percentage_ST,percentage_DR);
-				//flag12 = 0;
-				//}
-
-				ForwardDrive();
+				
+				if(getNewSpeed())
+				{
+					sendString("###New Speed\n", 14);
+					newSpeed = 0;
+					ControlledDrive(percentage_ST,percentage_DR);
+					flag12 = 0;
+				}
+				
+				//ForwardDrive();
 			}
 		}
 	
