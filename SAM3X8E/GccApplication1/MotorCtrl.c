@@ -142,15 +142,15 @@ void ForwardDrive(){
 void ControlledDrive(uint32_t percent_ST, uint32_t percent_DR){
 	
 	if(sign_ST==1){
-		iSpeed_ST=-70;
+		iSpeed_ST=-80;
 	}else{
-		iSpeed_ST=BASE_SPEED;
+		iSpeed_ST=80;
 	}
 	
 	if(sign_DR==1){
-		iSpeed_DR=-70;
+		iSpeed_DR=-80;
 	}else{
-		iSpeed_DR=BASE_SPEED;
+		iSpeed_DR=80;
 	}
 	
 	uint8_t st = 0;
@@ -174,7 +174,7 @@ void ControlledDrive(uint32_t percent_ST, uint32_t percent_DR){
 		WriteMotors(iSpeed_ST,iSpeed_DR);
 		timeout++;
 	}
-	WriteMotors(0,0);	 
+	WriteMotors(40,40);	 
 	sendString("\n\n---------- Exit from controlledDrive",38);	
 }
 
@@ -194,6 +194,12 @@ void ControlledDrive_Speed(uint32_t percent_ST, uint32_t percent_DR){
 	uint8_t st = 0;
 	uint8_t dr = 0;
 	
+	uint32_t iEncoder_DR_previous = 0;
+	uint32_t iEncoder_ST_previous = 0;
+	
+	uint16_t iDelta_ST = 0;
+	uint16_t iDelta_DR = 0;
+	
 	iEncoder_ST_current = 0;
 	iEncoder_DR_current = 0;
 	
@@ -201,6 +207,9 @@ void ControlledDrive_Speed(uint32_t percent_ST, uint32_t percent_DR){
 	
 	while((!(st && dr)) && (timeout < 100000))
 	{
+		iDelta_ST = iEncoder_ST_current - iEncoder_ST_previous;
+		iDelta_DR = iEncoder_DR_current - iEncoder_DR_previous;
+		
 		if(iEncoder_DR_current >= percent_DR){
 			iSpeed_DR = 0;
 			st=1;
@@ -209,6 +218,12 @@ void ControlledDrive_Speed(uint32_t percent_ST, uint32_t percent_DR){
 			iSpeed_ST = 0;
 			dr=1;
 		}
+		
+		
+		iEncoder_ST_previous = iEncoder_ST_current;
+		iEncoder_DR_previous = iEncoder_DR_current;
+		
+		
 		WriteMotors(iSpeed_ST,iSpeed_DR);
 		timeout++;
 	}

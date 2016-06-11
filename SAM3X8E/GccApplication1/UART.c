@@ -66,15 +66,16 @@ inline int uart_putchar(const uint8_t c)
 
 void UART_Handler(void)
 {	
-   if(UART->UART_IMR & UART_IMR_RXRDY)
-   {
+	if(UART->UART_IMR & UART_IMR_RXRDY)
+	{	   
 		static int i = 0;
 		uint8_t c;
+		
 		if(uart_getchar(&c))
 		{
 			return;
 		}
-		uart_putchar(c);
+
 		if(i > sizeof(buffer)-1)
 		{
 			sendString("####Too much data received\n", 27);
@@ -82,18 +83,22 @@ void UART_Handler(void)
 			i = 0;
 			return;
 		}
+		
 		buffer[i] = c;
+		
 		if(buffer[i] == '\n')
 		{
-			sendString("#### Parsing Strings: ", 22);
+			//sendString("#### Parsing Strings: ", 22);
 			sendString(buffer, i); // make an echo of the whole buffer untill now
 			uart_putchar('\n');
 			parseSpeed(buffer, i);	
 			memset(buffer, 0, sizeof(buffer));
 			i = 0;
 		}
-
-		i++;
+		else
+		{
+			i++;	
+		}
 	}
 }
 
