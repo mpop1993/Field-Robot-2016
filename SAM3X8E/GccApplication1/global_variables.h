@@ -24,7 +24,7 @@ extern volatile uint32_t percentage_DR;
 extern volatile uint8_t sign_ST;
 extern volatile uint8_t sign_DR;
 extern volatile uint8_t newSpeed;
-
+//extern volatile uint8_t flag12;
 
 extern volatile uint8_t startStop_Camera;
 extern volatile uint8_t initializeMotors;

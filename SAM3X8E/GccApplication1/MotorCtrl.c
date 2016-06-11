@@ -18,6 +18,7 @@
 #define _BV(bit) (0x1u << bit)
 #define CHAN_ST 4
 #define CHAN_DR 5
+volatile uint8_t flag12;
 
 // ----- Function prototipes
 void InitPWMController_MCLK(void);
@@ -139,6 +140,7 @@ void ForwardDrive(){
 // 255 impulsuri ~ 60 cm 
 // 
 void ControlledDrive(uint32_t percent_ST, uint32_t percent_DR){
+	
 	if(sign_ST==1){
 		iSpeed_ST=-70;
 	}else{
@@ -156,11 +158,49 @@ void ControlledDrive(uint32_t percent_ST, uint32_t percent_DR){
 	
 	iEncoder_ST_current = 0;
 	iEncoder_DR_current = 0;
-	
-	//iSpeed_ST=-70;
-	//iSpeed_DR=-70;
+
 	int timeout = 0;
-	while(!(st && dr) && (timeout < 100000)){
+	
+	while((!(st && dr)) && (timeout < 100000))
+	{
+		if(iEncoder_DR_current >= percent_DR){
+			iSpeed_DR = 0;
+			st=1;
+		}
+		if(iEncoder_ST_current >= percent_ST){
+			iSpeed_ST = 0;
+			dr=1;
+		}
+		WriteMotors(iSpeed_ST,iSpeed_DR);
+		timeout++;
+	}
+	WriteMotors(0,0);	 
+	sendString("\n\n---------- Exit from controlledDrive",38);	
+}
+
+void ControlledDrive_Speed(uint32_t percent_ST, uint32_t percent_DR){
+	if(sign_ST==1){
+		iSpeed_ST=-70;
+		}else{
+		iSpeed_ST=BASE_SPEED;
+	}
+	
+	if(sign_DR==1){
+		iSpeed_DR=-70;
+		}else{
+		iSpeed_DR=BASE_SPEED;
+	}
+	
+	uint8_t st = 0;
+	uint8_t dr = 0;
+	
+	iEncoder_ST_current = 0;
+	iEncoder_DR_current = 0;
+	
+	int timeout = 0;
+	
+	while((!(st && dr)) && (timeout < 100000))
+	{
 		if(iEncoder_DR_current >= percent_DR){
 			iSpeed_DR = 0;
 			st=1;
@@ -173,10 +213,6 @@ void ControlledDrive(uint32_t percent_ST, uint32_t percent_DR){
 		timeout++;
 	}
 	WriteMotors(0,0);
-	
-}
-
-void ControlledDrive_Speed(uint8_t speedST, uint8_t speed_DR){
-	
+	sendString("\n\n---------- Exit from controlledDrive",38);
 }
 

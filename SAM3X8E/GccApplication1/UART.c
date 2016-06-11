@@ -18,7 +18,7 @@
 
  
 // ----- Local variables
-char buffer[20];
+static volatile char buffer[70];
 
 volatile uint32_t percentage_ST;
 volatile uint32_t percentage_DR;
@@ -28,7 +28,7 @@ volatile uint8_t newSpeed;
 extern volatile uint8_t flag12;
 
 // ----- Function prototipes
-void parseSpeed(char* buffer);
+uint8_t parseSpeed(char* buffer, int size);
 int signum(int x);
 
 // *************************************************************************************************************************************
@@ -65,13 +65,16 @@ inline int uart_putchar(const uint8_t c)
 }
 
 void UART_Handler(void)
-{
+{	
    if(UART->UART_IMR & UART_IMR_RXRDY)
    {
 		static int i = 0;
-		uint8_t c = UART->UART_RHR;
-		UART->UART_THR = c; // echo back
-
+		uint8_t c;
+		if(uart_getchar(&c))
+		{
+			return;
+		}
+		uart_putchar(c);
 		if(i > sizeof(buffer)-1)
 		{
 			sendString("####Too much data received\n", 27);
@@ -79,17 +82,15 @@ void UART_Handler(void)
 			i = 0;
 			return;
 		}
-	
 		buffer[i] = c;
 		if(buffer[i] == '\n')
 		{
 			sendString("#### Parsing Strings: ", 22);
 			sendString(buffer, i); // make an echo of the whole buffer untill now
 			uart_putchar('\n');
-			parseSpeed(buffer);
+			parseSpeed(buffer, i);	
 			memset(buffer, 0, sizeof(buffer));
 			i = 0;
-			return;
 		}
 
 		i++;
@@ -119,7 +120,7 @@ uint8_t getNewSpeed()
 {
 	if(flag12)
 	{
-		//sendString("Set:\n", 5);
+		sendString("Set:\n", 5);
 		return 1;
 	}
 	else
@@ -129,14 +130,20 @@ uint8_t getNewSpeed()
 	}
 }
 
-void parseSpeed(char* buffer)
+uint8_t parseSpeed(char* buffer, int size)
 {
+	//if(getNewSpeed())
+	//{
+		//sendString("-----Prescription not finished",30);
+		//return 0;
+	//}
+	
 	sign_ST = 0;
 	sign_DR = 0;
-	
+	char bufParsing[70]="";
+	memcpy(bufParsing, buffer+1, size-1);
 	char* token1;
-	token1 = strtok(buffer, "#");
-	
+	token1 = strtok(bufParsing, "#");
 	if(token1 != NULL)
 	{
 		char* token2;
@@ -168,6 +175,8 @@ void parseSpeed(char* buffer)
 			flag12=1;
 		}
 	}
+	
+	return 1;
 }
 
 void configure_uart(void)

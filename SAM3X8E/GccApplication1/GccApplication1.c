@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-volatile uint8_t flag12=0;
+
 
 // ----- Defines
 #define F_CPU 84000000L
@@ -30,6 +30,7 @@ void selfTest(void);
 uint8_t c = 4;
 volatile uint8_t startStop_Camera;
 volatile uint8_t initializeMotors;
+volatile uint8_t flag12;
 
 // *************************************************************************************************************************************
 
@@ -37,17 +38,24 @@ int main(void)
 {
     /* Initialize the SAM system */
     SystemInit();
+
 	/* Initialize pins */
 	Pin_Configuration();
 	/* Initialize PWM generator */
 	InitPWMController_MCLK(); 
 	/* Initialize timers */
 	Configure_Timers();
+	
+	InitMotors();
+	
 	/* Configre UART */
 	configure_uart();
 	
 	sendString("###ON \n", 7);
-
+	sendString("###Initializing\n", 16);
+	
+	
+	
 	/* Disable watchdog */
 	WDT->WDT_MR |=  WDT_MR_WDDIS;
 
@@ -55,19 +63,12 @@ int main(void)
 	
 	// Set variables 
 	initializeMotors = 0;
+	flag12 = 0;
 	
 	// ----- TASK_1
 	#if defined(TASK_1)
 		while (1)
-		{	
-
-			if(initializeMotors)
-			{
-				sendString("###Initializing\n", 16);
-				InitMotors();
-				initializeMotors = 0;
-			}
-			
+		{			
 			if(getNewSpeed())
 			{
 				sendString("###New Speed\n", 14);
@@ -75,8 +76,6 @@ int main(void)
 				ControlledDrive(percentage_ST,percentage_DR);
 				flag12 = 0;
 			}
-		
-			//ForwardDrive();
 		}
 		
 	// ----- TASK_2
@@ -84,6 +83,7 @@ int main(void)
 	
 		while (1)
 		{
+			
 			
 		}
 	

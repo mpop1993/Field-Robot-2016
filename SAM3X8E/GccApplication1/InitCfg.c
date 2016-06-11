@@ -12,6 +12,7 @@
 
 // ----- Defines
 #define _BV(bit) (0x1u << bit)
+#define TASK_1
 
 // *************************************************************************************************************************************
 void Pin_Configuration()
@@ -94,19 +95,19 @@ void Pin_Configuration()
 		PIOC->PIO_IER |= PIO_PC25;
 		NVIC_EnableIRQ(PIOC_IRQn);
 		
-	// Set pin 3[C28] as input for motor init
-		PIOC -> PIO_PER |= PIO_PC28;
-		PIOC -> PIO_ODR |= PIO_PC28;
-		PIOC -> PIO_PUDR |= PIO_PC28;
-		//Additional Interrupt Modes Enable Register
-		PIOC->PIO_AIMER |= PIO_PC28;
-		//Edge Select Register
-		PIOC->PIO_ESR |= PIO_PC28;
-		//Rising Edge/Low Level Select Register
-		PIOC->PIO_REHLSR |= PIO_PC28;
-		//Finally enable interrupts on PORTC.PC28
-		PIOC->PIO_IER |= PIO_PC28;
-		NVIC_EnableIRQ(PIOC_IRQn);
+	//// Set pin 3[C28] as input for motor init
+		//PIOC -> PIO_PER |= PIO_PC28;
+		//PIOC -> PIO_ODR |= PIO_PC28;
+		//PIOC -> PIO_PUDR |= PIO_PC28;
+		////Additional Interrupt Modes Enable Register
+		//PIOC->PIO_AIMER |= PIO_PC28;
+		////Edge Select Register
+		//PIOC->PIO_ESR |= PIO_PC28;
+		////Rising Edge/Low Level Select Register
+		//PIOC->PIO_REHLSR |= PIO_PC28;
+		////Finally enable interrupts on PORTC.PC28
+		//PIOC->PIO_IER |= PIO_PC28;
+		//NVIC_EnableIRQ(PIOC_IRQn);
 		
 	//// Set pin 5[C25] as input for start/stop from camera
 		//PIOA -> PIO_PER |= PIO_PA14;
@@ -124,7 +125,7 @@ void Pin_Configuration()
 		
 		// ----- TASK_1 Interrupt priority
 		#if defined(TASK_1)
-			
+			NVIC_SetPriority(UART_IRQn,1);
 		// ----- TASK_2 Interrupt priority
 		#elif defined(TASK_2)
 			
